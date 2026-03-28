@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Darojo Home</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <style>
+    body {
+      font-family: serif;
+      max-width: 700px;
+      margin: 0;
+      padding: 40px 20px;
+      background: #111;
+      color: #ddd;
+      line-height: 1.6;
+      text-align: left;
+      font-size: 1rem;
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 0.2em;
+      color: #fff;
+    }
+
+    hr {
+      border: none;
+      border-top: 1px solid #444;
+      margin: 1.5em 0;
+    }
+
+    .project {
+      margin-bottom: 2em;
+    }
+
+    .project h2 {
+      font-size: 1.2rem;
+      margin-bottom: 0.2em;
+      color: #fff;
+    }
+
+    .project h2 a {
+      color: #6af;
+      text-decoration: underline;
+    }
+
+    .project h2 a:visited {
+      color: #a78bfa;
+    }
+
+    .project p {
+      margin: 0.3em 0;
+    }
+
+    .tech-stack  {
+      font-size: 0.9em;
+      font-style: italic;
+      color: #888;
+    }
+
+    .source-link {
+      font-size: 0.9em;
+    }
+
+    .source-link a {
+      color: #6af;
+    }
+
+    .source-link a:visited {
+      color: #a78bfa;
+    }
+
+    footer {
+      margin-top: 2em;
+      font-size: 0.85em;
+      border-top: 1px solid #444;
+      padding-top: 0.8em;
+      color: #888;
+    }
+
+    footer a { color: #6af; }
+    footer a:visited { color: #a78bfa; }
+
+    @media (min-width: 600px) {
+      body {
+        font-size: 1.05rem;
+        padding: 48px 32px;
+      }
+    }
+
+    @media (min-width: 900px) {
+      body {
+        font-size: 1.1rem;
+        padding: 56px 40px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Darojo Home</h1>
+  <p class="tagline">All software programs are free to use, study, modify and redistribute.</p>
+  <p class="tagline">These projects were created as a way of practicing devops skills while creating software that I find useful and enjoy and believe that other people may benefit from. </p>
+
+  <hr>
+
+  <div class="project">
+    <h2><a href="https://calc.darojo.net/">Mortgage Calculator</a></h2>
+    <p>Calculate mortgage payments and early payoff savings.</p>
+    <p>I chose to work on this project because, while using other people's websites to figure out housing costs, I became tired of being swarmed with adds for mortgage loans/realtors/home insurance, and I became nervous that information was being sold companies.</p>
+    <p class="tech-stack">Coded with Python's Flask and Matplotlib modules, containerized with Docker, hosted in Azure Container Apps, with a CI/CD pipeline using GitHub Actions and infrastructure provisioned via Terraform.</p>
+    <p class="source-link"><a href="https://github.com/DaneJ081/Mortgage-Payoff-Calc" target="_blank" rel="noopener">View source code</a></p>
+  </div>
+
+  <div class="project">
+    <h2><a href="https://play.darojo.net/">Solitaire</a></h2>
+    <p>Play Solitaire without adds.</p>
+    <p class="tech-stack">Tech stack description coming soon.</p>
+    <p class="source-link">Source code coming soon.</p>
+  </div>
+<!--
+  <div class="project">
+    <h2><a href="https://support.darojo.net/">IT Support</a></h2>
+    <p>Submit and track technical support requests.</p>
+    <p class="tech-stack">Tech stack description coming soon.</p>
+    <p class="source-link">Source code coming soon.</p>
+  </div>
+-->
+  <footer>
+    Licensed under the <a href="https://www.gnu.org/licenses/gpl-3.0.html" target="_blank" rel="noopener">GNU General Public License v3.0</a>. No copyright.
+  </footer>
+
+</body>
+</html>
