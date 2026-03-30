@@ -1,0 +1,5 @@
+# Azure DevOps pipeline
+- script: |
+    terraform apply -var="subscription_id=$(SUBSCRIPTION_ID)"
+  env:
+    SUBSCRIPTION_ID: $(subscriptionId)  # ADO secret variable
