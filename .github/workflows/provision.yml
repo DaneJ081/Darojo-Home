@@ -1,0 +1,11 @@
+name: Provision Infrastructure
+
+trigger: none
+
+jobs:
+- job: provision_infrastructure
+  steps:
+  - script: |
+      terraform apply -var="subscription_id=$(SUBSCRIPTION_ID)"
+    env:
+      SUBSCRIPTION_ID: $(subscriptionId)
