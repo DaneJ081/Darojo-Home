@@ -1,11 +1,57 @@
 name: Provision Infrastructure
 
-trigger: none
+on: 
+  workflow_dispatch:
 
 jobs:
-- job: provision_infrastructure
-  steps:
-  - script: |
-      terraform apply -var="subscription_id=$(SUBSCRIPTION_ID)"
-    env:
-      SUBSCRIPTION_ID: $(subscriptionId)
+
+  Plan:
+    name: Terraform Plan
+    runs-on: ubuntu-latest
+    steps: 
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: init
+        run: terraform init -backend-config="key=darojo/stg/terraform.stg"  -reconfigure
+
+      - name: plan
+        run: terraform plan -var-file="./Env/stg.tfvars" -out=tfplan.binary
+
+      - name: Upload plan artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-plan
+          path: tfplan.binary
+          retention-days: 5
+
+
+  manual-approval:
+    name: Manual Approval
+    runs-on: ubuntu-latest
+    needs: Plan
+    if: success()
+
+  provision_infrastructure:
+    name: Provision staging infrastructure
+    runs-on: ubuntu-latest
+    needs: manual-approval
+    if: success()
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: init
+        run: terraform init -backend-config="key=darojo/stg/terraform.stg"  -reconfigure
+
+      - name: Download plan artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: terraform-plan
+
+      - name: apply
+        env:
+          SUBSCRIPTION_ID: ${{ secrets.subscriptionId }}
+        run: terraform apply -var="subscription_id=${{ env.SUBSCRIPTION_ID }}" -auto-approve
+
+
