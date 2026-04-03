@@ -21,6 +21,11 @@ jobs:
           terraform_version: 1.9.0
 
       - name: init
+        env:
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
         run: terraform init -backend-config="key=darojo/stg/terraform.stg"  -reconfigure
 
       - name: pwd
@@ -30,6 +35,11 @@ jobs:
         run: ls -l
 
       - name: plan
+        env:
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
         run: terraform plan -var-file="Infra/Env/stg.tfvars" -out=tfplan.binary
 
       - name: Upload plan artifact
