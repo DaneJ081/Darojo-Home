@@ -8,6 +8,9 @@ jobs:
   Plan:
     name: Terraform Plan
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./Infra
     steps: 
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -16,9 +19,6 @@ jobs:
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.9.0
-
-      - name: CD into Infra
-        run: cd Infra
 
       - name: init
         run: terraform init -backend-config="key=darojo/stg/terraform.stg"  -reconfigure
