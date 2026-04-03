@@ -28,19 +28,13 @@ jobs:
           ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
         run: terraform init -backend-config="key=darojo/stg/terraform.stg"  -reconfigure
 
-      - name: pwd
-        run: pwd
-
-      - name: ls -l 
-        run: ls -l
-
       - name: plan
         env:
           ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
           ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
           ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-        run: terraform plan -var-file="Infra/Env/stg.tfvars" -out=tfplan.binary
+        run: terraform plan -var-file="./Env/stg.tfvars" -out=tfplan.binary
 
       - name: Upload plan artifact
         uses: actions/upload-artifact@v4
