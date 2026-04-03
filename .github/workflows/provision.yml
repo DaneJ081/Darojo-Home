@@ -20,8 +20,14 @@ jobs:
       - name: init
         run: terraform init -backend-config="key=darojo/stg/terraform.stg"  -reconfigure
 
+      - name: pwd
+        run: pwd
+
+      - name: ls -l 
+        run: ;s -l
+
       - name: plan
-        run: terraform plan -var-file="./Env/stg.tfvars" -out=tfplan.binary
+        run: terraform plan -var-file="Infra/Env/stg.tfvars" -out=tfplan.binary
 
       - name: Upload plan artifact
         uses: actions/upload-artifact@v4
