@@ -24,7 +24,7 @@ jobs:
         run: pwd
 
       - name: ls -l 
-        run: ;s -l
+        run: ls -l
 
       - name: plan
         run: terraform plan -var-file="Infra/Env/stg.tfvars" -out=tfplan.binary
