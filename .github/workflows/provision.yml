@@ -12,6 +12,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Terrafrom Install
+        run: sudo apt install terraform -y
+
       - name: init
         run: terraform init -backend-config="key=darojo/stg/terraform.stg"  -reconfigure
 
