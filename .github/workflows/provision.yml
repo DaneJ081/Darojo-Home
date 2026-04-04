@@ -6,7 +6,7 @@ on:
 jobs:
 
   plan-staging:
-    name: Terraform Plan
+    name: Plan Staging Infrastructure
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -44,7 +44,7 @@ jobs:
           retention-days: 5
 
   manual-approval-staging:
-    name: Manual Approval
+    name: Review Staging Plan
     runs-on: ubuntu-latest
     needs: plan-staging
     if: success()
@@ -54,7 +54,7 @@ jobs:
         run: echo "Approval granted, proceeding to apply"
 
   provision-infrastructure-staging:
-    name: Provision staging infrastructure
+    name: Provision Staging Infrastructure
     runs-on: ubuntu-latest
     needs: manual-approval-staging
     if: success()
@@ -103,7 +103,7 @@ jobs:
         run: echo "Approval granted, proceeding to apply"
 
   Provision-Prod:
-    name: Terraform Plan
+    name: Provision Prod Infrastructure
     runs-on: ubuntu-latest
     needs: manual-approval-prod
     if: success()
