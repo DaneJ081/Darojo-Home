@@ -5,7 +5,7 @@ on:
 
 jobs:
 
-  plan-staging:
+  plan-infrastructure-staging:
     name: Plan Staging Infrastructure
     runs-on: ubuntu-latest
     defaults:
@@ -34,19 +34,19 @@ jobs:
           ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
           ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-        run: terraform plan -var-file="./Env/stg.tfvars" -var="subscription_id=${{ secrets.AZURE_SUBSCRIPTION_ID }}" -out=tfplan.binary
+        run: terraform plan -var-file="./Env/stg.tfvars" -var="subscription_id=${{ secrets.AZURE_SUBSCRIPTION_ID }}" -out=tfplan-staging.binary
 
       - name: Upload plan artifact
         uses: actions/upload-artifact@v4
         with:
           name: terraform-plan-staging
-          path: ./Infra/tfplan.binary
+          path: ./Infra/tfplan-staging.binary
           retention-days: 5
 
   manual-approval-staging:
     name: Review Staging Plan
     runs-on: ubuntu-latest
-    needs: plan-staging
+    needs: plan-infrastructure-staging
     if: success()
     environment: Manual-Approval  
     steps:
@@ -90,9 +90,9 @@ jobs:
           ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
           ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-        run: terraform apply -auto-approve tfplan.binary
+        run: terraform apply -auto-approve tfplan-staging.binary
 
-  manual-approval-prod:
+  manual-approval-plan-prod:
     name: Manual Approval
     runs-on: ubuntu-latest
     needs: provision-infrastructure-staging
@@ -102,10 +102,10 @@ jobs:
       - name: Await approval
         run: echo "Approval granted, proceeding to apply"
 
-  Provision-Prod:
+  plan-infrastructure-prod:
     name: Provision Prod Infrastructure
     runs-on: ubuntu-latest
-    needs: manual-approval-prod
+    needs: manual-approval-plan-prod
     if: success()
     defaults:
       run:
@@ -133,7 +133,55 @@ jobs:
           ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
           ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-        run: terraform plan -var-file="./Env/prod.tfvars" -var="subscription_id=${{ secrets.AZURE_SUBSCRIPTION_ID }}" -out=tfplan.binary
+        run: terraform plan -var-file="./Env/prod.tfvars" -var="subscription_id=${{ secrets.AZURE_SUBSCRIPTION_ID }}" -out=tfplan-prod.binary
+
+      - name: Upload plan artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-plan-staging
+          path: ./Infra/tfplan-prod.binary
+          retention-days: 5
+
+  manual-approval-prod:
+    name: Manual Approval
+    runs-on: ubuntu-latest
+    needs: plan-infrastructure-prod
+    if: success()
+    environment: Manual-Approval  
+    steps:
+      - name: Await approval
+        run: echo "Approval granted, proceeding to apply"
+
+  provision-infrastructure-prod:
+    name: Provision Prod Infrastructure
+    runs-on: ubuntu-latest
+    needs: manual-approval-plan-prod
+    if: success()
+    defaults:
+      run:
+        working-directory: ./Infra
+    steps: 
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.9.0
+
+      - name: Download plan artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: terraform-plan-prod
+          path: ./Infra
+
+      - name: Terraform Init
+        env:
+          ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+        run: terraform init -backend-config="key=darojo/prod/terraform.tfstate"  -reconfigure
 
       - name: Terraform Apply
         env:
@@ -141,4 +189,4 @@ jobs:
           ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
           ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-        run: terraform apply -auto-approve tfplan.binary
+        run: terraform apply -auto-approve tfplan-prod.binary
