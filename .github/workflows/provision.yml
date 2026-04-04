@@ -5,7 +5,7 @@ on:
 
 jobs:
 
-  Plan:
+  plan-staging:
     name: Terraform Plan
     runs-on: ubuntu-latest
     defaults:
@@ -20,7 +20,7 @@ jobs:
         with:
           terraform_version: 1.9.0
 
-      - name: init
+      - name: Terraform Init
         env:
           ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
           ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
@@ -28,7 +28,7 @@ jobs:
           ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
         run: terraform init -backend-config="key=darojo/stg/terraform.tfstate"  -reconfigure
 
-      - name: plan
+      - name: Terraform Plan
         env:
           ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
           ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
@@ -39,21 +39,21 @@ jobs:
       - name: Upload plan artifact
         uses: actions/upload-artifact@v4
         with:
-          name: terraform-plan
+          name: terraform-plan-staging
           path: ./Infra/tfplan.binary
           retention-days: 5
 
   manual-approval-staging:
     name: Manual Approval
     runs-on: ubuntu-latest
-    needs: Plan
+    needs: plan-staging
     if: success()
     environment: Manual-Approval  
     steps:
       - name: Await approval
         run: echo "Approval granted, proceeding to apply"
 
-  provision_infrastructure:
+  provision-infrastructure-staging:
     name: Provision staging infrastructure
     runs-on: ubuntu-latest
     needs: manual-approval-staging
@@ -70,7 +70,7 @@ jobs:
         with:
           terraform_version: 1.9.0
 
-      - name: init
+      - name: Terraform Init
         env:
           ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
           ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
@@ -81,10 +81,10 @@ jobs:
       - name: Download plan artifact
         uses: actions/download-artifact@v4
         with:
-          name: terraform-plan
+          name: terraform-plan-staging
           path: ./Infra
 
-      - name: apply
+      - name: Apply Staging
         env:
           ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
           ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
@@ -95,7 +95,7 @@ jobs:
   manual-approval-prod:
     name: Manual Approval
     runs-on: ubuntu-latest
-    needs: Plan
+    needs: provision-infrastructure-staging
     if: success()
     environment: Manual-Approval  
     steps:
@@ -119,7 +119,7 @@ jobs:
         with:
           terraform_version: 1.9.0
 
-      - name: init
+      - name: Terraform Init
         env:
           ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
           ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
@@ -127,7 +127,7 @@ jobs:
           ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
         run: terraform init -backend-config="key=darojo/prod/terraform.tfstate"  -reconfigure
 
-      - name: plan
+      - name: Terraform Plan
         env:
           ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
           ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
@@ -135,7 +135,7 @@ jobs:
           ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
         run: terraform plan -var-file="./Env/prod.tfvars" -var="subscription_id=${{ secrets.AZURE_SUBSCRIPTION_ID }}" -out=tfplan.binary
 
-      - name: apply
+      - name: Terraform Apply
         env:
           ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
           ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
