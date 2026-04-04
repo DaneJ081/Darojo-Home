@@ -12,11 +12,9 @@ terraform {
     resource_group_name  = "terraform-rg"
     storage_account_name = "darojoterraform"
     container_name       = "terraform"
-    key                  = "${var.application}/${var.env}/terraform.tfstate"
   }
 }
 
 provider "azurerm" {
-  subscription_id = var.subscription_id
   features {}
 }
